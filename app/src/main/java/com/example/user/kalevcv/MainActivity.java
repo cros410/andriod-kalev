@@ -69,11 +69,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Context context = getApplicationContext();
-                CharSequence text = "Forma";
+                int lados = (int)lienzo.getShape();
+                String figura = "";
+                switch (lados){
+                    case 3:
+                        figura = "TRIANGULO";
+                        break;
+                    case 4:
+                        figura = "CUADRADO";
+                        break;
+                    case 5:
+                        figura = "PENTAGONO";
+                        break;
+                    default:
+                        figura = "CIRCULO";
+
+                }
+                CharSequence text = "Forma: " + figura;
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
-                lienzo.getShape();
 
             }
         });

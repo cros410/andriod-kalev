@@ -1,6 +1,10 @@
 {
     "logs": [
         {
+            "outputFile": "D:\\Christian-Data\\Proyectos\\Android\\andriod-kalev\\openCVLibrary331\\build\\intermediates\\res\\merged\\androidTest\\debug\\values_values.arsc.flat",
+            "map": []
+        },
+        {
             "outputFile": "D:\\Proyectos\\Android\\KalevCV\\openCVLibrary331\\build\\intermediates\\res\\merged\\androidTest\\debug\\values_values.arsc.flat",
             "map": []
         }

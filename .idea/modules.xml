@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/KalevCV.iml" filepath="$PROJECT_DIR$/KalevCV.iml" />
+      <module fileurl="file://D:\Christian-Data\Proyectos\Android\andriod-kalev\KalevCV.iml" filepath="D:\Christian-Data\Proyectos\Android\andriod-kalev\KalevCV.iml" />
+      <module fileurl="file://$PROJECT_DIR$/andriod-kalev.iml" filepath="$PROJECT_DIR$/andriod-kalev.iml" />
+      <module fileurl="file://$PROJECT_DIR$/androidlibsvm-release/androidlibsvm-release.iml" filepath="$PROJECT_DIR$/androidlibsvm-release/androidlibsvm-release.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\Christian-Data\Proyectos\Android\andriod-kalev\app\app.iml" filepath="D:\Christian-Data\Proyectos\Android\andriod-kalev\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/openCVLibrary331/openCVLibrary331.iml" filepath="$PROJECT_DIR$/openCVLibrary331/openCVLibrary331.iml" />
+      <module fileurl="file://D:\Christian-Data\Proyectos\Android\andriod-kalev\openCVLibrary331\openCVLibrary331.iml" filepath="D:\Christian-Data\Proyectos\Android\andriod-kalev\openCVLibrary331\openCVLibrary331.iml" />
     </modules>
   </component>
 </project>

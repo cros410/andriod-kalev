@@ -8,25 +8,24 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.Range;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import umich.cse.yctung.androidlibsvm.LibSVM;
 
 public class Lienzo extends View {
     private Path drawPath;
@@ -104,8 +103,9 @@ public class Lienzo extends View {
         drawPaint.setColor(paintColor);
     }
 
-    public void getShape() {
+    public long getShape() {
         Bitmap canvastmp = canvasBitmap;
+        long lados = 0;
         int[] allpixels = new int[canvastmp.getHeight() * canvastmp.getWidth()];
         canvastmp.getPixels(allpixels, 0,
                 canvastmp.getWidth(), 0, 0,
@@ -122,15 +122,21 @@ public class Lienzo extends View {
         Mat tmp = new Mat(canvasBitmap.getWidth(), canvasBitmap.getHeight(), CvType.CV_8S);
         Utils.bitmapToMat(canvasBitmap, tmp);
         Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.GaussianBlur(tmp, tmp,new Size(5,5), 0);
-        Imgproc.threshold(tmp,tmp,90,255,Imgproc.THRESH_BINARY);
-        Utils.matToBitmap(tmp, canvasBitmap);
+        Imgproc.GaussianBlur(tmp, tmp, new Size(5, 5), 0);
+        Imgproc.threshold(tmp, tmp, 90, 255, Imgproc.THRESH_BINARY);
+
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        Imgproc.findContours(tmp, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
-        //Double con = Imgproc.arcLength(MatOfPoint2f. contours,true);
-
-
+        Imgproc.findContours(tmp, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+        for (MatOfPoint op : contours) {
+            MatOfPoint2f res = new MatOfPoint2f();
+            MatOfPoint2f op2 = new MatOfPoint2f(op.toArray());
+            Double con = Imgproc.arcLength(op2, true);
+            Imgproc.approxPolyDP(op2, res, con * 0.04, true);
+            lados = res.total();
+        }
+        Utils.matToBitmap(tmp, canvasBitmap);
+        return lados;
 
     }
 
@@ -151,9 +157,21 @@ public class Lienzo extends View {
         Mat tmp = new Mat(canvasBitmap.getWidth(), canvasBitmap.getHeight(), CvType.CV_8S);
         Utils.bitmapToMat(canvasBitmap, tmp);
         Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.GaussianBlur(tmp, tmp,new Size(5,5), 0);
-        Imgproc.threshold(tmp,tmp,90,255,Imgproc.THRESH_BINARY);
+        Imgproc.GaussianBlur(tmp, tmp, new Size(5, 5), 0);
+        Imgproc.threshold(tmp, tmp, 90, 255, Imgproc.THRESH_BINARY);
         Utils.matToBitmap(tmp, canvasBitmap);
+
+        LibSVM svm = new LibSVM();
+        String systemPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+        String appFolderPath = systemPath + "libsvm/"; // your datasets folder
+
+        // NOTE the space between option parameters, which is important to
+        // keep the options consistent to the original LibSVM format
+        svm.scale(appFolderPath + "heart_scale", appFolderPath + "heart_scale_scaled");
+        svm.train("-t 2 "/* svm kernel */ + appFolderPath + "heart_scale_scaled " + appFolderPath + "model");
+        svm.predict(appFolderPath + "hear_scale_predict " + appFolderPath + "model " + appFolderPath + "result");
+
+
     }
 }
         /*Mat tmp = new Mat(canvasBitmap.getWidth(), canvasBitmap.getHeight(), CvType.CV_8S);
