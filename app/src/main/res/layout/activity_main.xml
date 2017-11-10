@@ -62,8 +62,8 @@
 
     <com.example.user.kalevcv.Lienzo
         android:id="@+id/lienzo"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="1400px"
+        android:layout_height="1400px"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
