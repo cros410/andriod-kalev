@@ -145,29 +145,9 @@ public class Lienzo extends View {
 
     public int getNumber() {
         Bitmap canvastmp = canvasBitmap;
-        int con = 0;
-        int min_x = 0, min_y = 0, max_x = 0, max_y = 0;
         Log.d("TAG", "w : " + canvastmp.getWidth());
         Log.d("TAG", "h : " + canvastmp.getHeight());
-        for (int y = 0; y < canvastmp.getHeight(); y++) {
-            for (int x = 0; x < canvastmp.getWidth(); x++) {
-                if (canvastmp.getPixel(x, y) == Color.parseColor("#004C00")) {
-                    con++;
-                    if (con == 1) {
-                        min_x = x;
-                        min_y = y;
-                    }
-                    max_x = x;
-                    max_y = y;
-                }
-            }
-        }
-
-        Log.d("TAG", "POS MIN :  (" + min_x + "," + min_y + ")");
-        Log.d("TAG", "POS MAX :  (" + max_x + "," + max_y + ")");
-
-        Log.d("TAG", "ANCHO :  " + (max_x - min_x));
-        Log.d("TAG", "ALTO :  "  +  (max_y - min_y )) ;
+        getPoint(canvastmp);
         return 1;
 
         /*Bitmap canvasBitmapCopy = canvasBitmap;
@@ -202,6 +182,40 @@ public class Lienzo extends View {
         this.nuevoDibujo();
         return num;*/
 
+    }
+
+    public int[] getPoint(Bitmap canvastmp){
+        int con = 0;
+        int min_x = 0, min_y = 0, max_x = 0, max_y = 0;
+        for (int y = 0; y < canvastmp.getHeight(); y++) {
+            for (int x = 0; x < canvastmp.getWidth(); x++) {
+                if (canvastmp.getPixel(x, y) == Color.parseColor("#004C00")) {
+                    con++;
+                    if (con == 1) {
+                        min_y = y;
+                    }
+                    max_y = y;
+                }
+            }
+        }
+        con = 0;
+        for (int x = 0; x < canvastmp.getWidth(); x++) {
+            for (int y = 0; y < canvastmp.getHeight(); y++) {
+                if (canvastmp.getPixel(x, y) == Color.parseColor("#004C00")) {
+                    con++;
+                    if (con == 1) {
+                        min_x = x;
+                    }
+                    max_x = x;
+                }
+            }
+        }
+
+        Log.d("TAG", "POS MIN :  (" + min_x + "," + min_y + ")");
+        Log.d("TAG", "POS MAX :  (" + max_x + "," + max_y + ")");
+        Log.d("TAG", "ANCHO :  " + (max_x - min_x));
+        Log.d("TAG", "ALTO :  "  +  (max_y - min_y )) ;
+        return null;
     }
 
     public Bitmap resizeBitmap(int x, int y, Bitmap bitmap) {
