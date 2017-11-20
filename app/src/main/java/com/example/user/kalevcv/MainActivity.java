@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         btn_shape.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lienzo.setColor("#FF0000");
+                lienzo.setColor("#FF0000" ,0 );
             }
         });
 
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         btn_line.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lienzo.setColor("#004C00");
+                lienzo.setColor("#004C00" , 1);
             }
         });
         btn_next.setOnClickListener(new View.OnClickListener() {

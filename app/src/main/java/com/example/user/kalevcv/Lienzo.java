@@ -17,6 +17,7 @@ import android.view.View;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -100,10 +101,15 @@ public class Lienzo extends View {
 
     }
 
-    public void setColor(String newColor) {
+    public void setColor(String newColor , int s) {
         invalidate();
         paintColor = Color.parseColor(newColor);
         drawPaint.setColor(paintColor);
+        if(s > 0){
+            drawPaint.setStrokeWidth(10);
+        }else{
+            drawPaint.setStrokeWidth(60);
+        }
     }
 
     public long getShape() {
@@ -135,7 +141,7 @@ public class Lienzo extends View {
             MatOfPoint2f res = new MatOfPoint2f();
             MatOfPoint2f op2 = new MatOfPoint2f(op.toArray());
             Double con = Imgproc.arcLength(op2, true);
-            Imgproc.approxPolyDP(op2, res, con * 0.04, true);
+            Imgproc.approxPolyDP(op2, res, con * 0.01, true);
             lados = res.total();
         }
         Utils.matToBitmap(tmp, canvasBitmap);
@@ -144,14 +150,20 @@ public class Lienzo extends View {
     }
 
     public int getNumber() {
-        Bitmap canvastmp = canvasBitmap;
-        Log.d("TAG", "w : " + canvastmp.getWidth());
-        Log.d("TAG", "h : " + canvastmp.getHeight());
-        getPoint(canvastmp);
-        return 1;
+        /*
+        int[] puntos = getNumberBitmap(canvasBitmap);
+        Bitmap b = resizeBitmap(1400,1400,Bitmap.createBitmap(canvasBitmap,puntos[0],puntos[1]
+                ,puntos[2],puntos[3]));
+        Mat tmp = new Mat(b.getWidth(), b.getHeight(), CvType.CV_8S);
+        Utils.bitmapToMat(b, tmp);
+        Utils.matToBitmap(tmp, canvasBitmap);
+        return 1;*/
 
-        /*Bitmap canvasBitmapCopy = canvasBitmap;
-        Bitmap canvastmp = resizeBitmap(64, 64, canvasBitmapCopy);
+        int[] puntos = getNumberBitmap(canvasBitmap);
+
+        Bitmap canvasBitmapCopy = Bitmap.createBitmap(canvasBitmap,puntos[0],puntos[1]
+                ,puntos[2],puntos[3]);
+        Bitmap canvastmp = resizeBitmap(28, 28, canvasBitmapCopy);
         int[] allpixels = new int[canvastmp.getHeight() * canvastmp.getWidth()];
         canvastmp.getPixels(allpixels, 0,
                 canvastmp.getWidth(), 0, 0,
@@ -169,22 +181,20 @@ public class Lienzo extends View {
         Imgproc.GaussianBlur(tmp, tmp, new Size(5, 5), 0);
         Imgproc.threshold(tmp, tmp, 90, 255, Imgproc.THRESH_BINARY);
         MatOfFloat matOfFloat = new MatOfFloat();
-        Size sz = new Size(64, 64);
+        Size sz = new Size(28, 28);
         HOGDescriptor hog = new HOGDescriptor
-                (sz, new Size(32, 32), new Size(32, 32), new Size(32, 32), 9);
+                (sz, new Size(14, 14), new Size(7, 7), new Size(7, 7), 9);
         hog.compute(tmp, matOfFloat);
         float[] ar = matOfFloat.toArray();
-        for (int i = 0; i < ar.length; i++) {
-            Log.d("TAG", "descriptores " + i + " : " + ar[i]);
-        }
         NumberPrediction pr = new NumberPrediction();
         int num = pr.getNumber(matOfFloat.toArray());
         this.nuevoDibujo();
-        return num;*/
-
+        return num;
     }
 
-    public int[] getPoint(Bitmap canvastmp){
+    public int[] getNumberBitmap(Bitmap canvastmp) {
+        Bitmap numberBitmap;
+        int dif = 0;
         int con = 0;
         int min_x = 0, min_y = 0, max_x = 0, max_y = 0;
         for (int y = 0; y < canvastmp.getHeight(); y++) {
@@ -214,8 +224,9 @@ public class Lienzo extends View {
         Log.d("TAG", "POS MIN :  (" + min_x + "," + min_y + ")");
         Log.d("TAG", "POS MAX :  (" + max_x + "," + max_y + ")");
         Log.d("TAG", "ANCHO :  " + (max_x - min_x));
-        Log.d("TAG", "ALTO :  "  +  (max_y - min_y )) ;
-        return null;
+        Log.d("TAG", "ALTO :  " + (max_y - min_y));
+        int[] r ={min_x,min_y,(max_x - min_x),(max_y - min_y)};
+        return  r;
     }
 
     public Bitmap resizeBitmap(int x, int y, Bitmap bitmap) {
