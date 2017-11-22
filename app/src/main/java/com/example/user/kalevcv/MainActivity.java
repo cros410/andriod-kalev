@@ -46,62 +46,32 @@ public class MainActivity extends AppCompatActivity {
         btn_new.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lienzo.nuevoDibujo();
-
+                lienzo.limpiar();
             }
         });
-
         btn_shape.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lienzo.setColor("#FF0000" ,0 );
+                lienzo.setFunction(1);
             }
         });
-
-
         btn_line.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lienzo.setColor("#004C00" , 1);
+                lienzo.setFunction(2);
             }
         });
+
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Context context = getApplicationContext();
-                int lados = (int)lienzo.getShape();
-                String figura = "";
-                switch (lados){
-                    case 3:
-                        figura = "TRIANGULO";
-                        break;
-                    case 4:
-                        figura = "CUADRADO";
-                        break;
-                    case 5:
-                        figura = "PENTAGONO";
-                        break;
-                    default:
-                        figura = "CIRCULO";
+                String[] step = lienzo.voidImagen();
 
-                }
-                CharSequence text = "Forma: " + figura;
+                CharSequence text = step[0] + " , " + step[1];
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
-
-            }
-        });
-        btn_number.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Context context = getApplicationContext();
-                int num = lienzo.getNumber();
-                CharSequence text = "LONG : " + num;
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-
 
             }
         });

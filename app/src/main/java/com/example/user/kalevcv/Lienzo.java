@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
@@ -95,154 +96,140 @@ public class Lienzo extends View {
         return true;
     }
 
-    public void nuevoDibujo() {
+    public void limpiar() {
         drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
         invalidate();
-
     }
 
-    public void setColor(String newColor , int s) {
+    public void setFunction(int function) { // function :  1 = shape  2 = draw
         invalidate();
-        paintColor = Color.parseColor(newColor);
-        drawPaint.setColor(paintColor);
-        if(s > 0){
-            drawPaint.setStrokeWidth(10);
-        }else{
-            drawPaint.setStrokeWidth(60);
+
+        if (function == 1) {
+            paintColor = Color.parseColor("#FF0000");//#FF0000 //000000
+            drawPaint.setStrokeWidth(50);
+        } else {
+            paintColor = Color.parseColor("#004C00");//#004C00 //C0C0C0
+            drawPaint.setStrokeWidth(30);
         }
+        drawPaint.setColor(paintColor);
     }
 
-    public long getShape() {
-        Bitmap canvastmp = canvasBitmap;
-        long lados = 0;
-        int[] allpixels = new int[canvastmp.getHeight() * canvastmp.getWidth()];
-        canvastmp.getPixels(allpixels, 0,
-                canvastmp.getWidth(), 0, 0,
-                canvastmp.getWidth(), canvastmp.getHeight());
-        for (int i = 0; i < allpixels.length; i++) {
-            if (allpixels[i] != Color.parseColor("#ff0000")) {
-                allpixels[i] = Color.WHITE;
-            }
+    public String[] voidImagen() {
+
+        String figura;
+        int number;
+        Bitmap canvastmp_shape = canvasBitmap;
+        Bitmap canvastmp_digit = canvasBitmap;
+        int shape = getFigura(canvastmp_shape);
+        switch (shape) {
+            case 0:
+                figura = "NO DETERMINADO";
+                break;
+            case 3:
+                figura = "TRIANGULO";
+                break;
+            case 4:
+                figura = "CUADRADO";
+                break;
+            case 5:
+                figura = "PENTAGONO";
+                break;
+            default:
+                figura = "CIRCULO";
+
         }
-        canvastmp.setPixels(allpixels, 0, canvastmp.getWidth(),
-                0, 0, canvastmp.getWidth(), canvastmp.getHeight());
-        canvasBitmap = canvastmp;
+        Log.d("TAG", "Figura : " + figura);
 
-        Mat tmp = new Mat(canvasBitmap.getWidth(), canvasBitmap.getHeight(), CvType.CV_8S);
-        Utils.bitmapToMat(canvasBitmap, tmp);
-        Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.GaussianBlur(tmp, tmp, new Size(5, 5), 0);
-        Imgproc.threshold(tmp, tmp, 90, 255, Imgproc.THRESH_BINARY);
+        number = getNumero(canvastmp_digit);
+        String[] s_n = {figura, number + ""};
+        return s_n;
 
+    }
 
+    public int getFigura(Bitmap canvastmp) {
+        long lados = 0;
+        Mat tmp = new Mat(canvastmp.getWidth(), canvastmp.getHeight(), CvType.CV_8UC3);
+        Utils.bitmapToMat(canvastmp, tmp);
+        Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2BGR);
+        Core.inRange(tmp, new Scalar(0, 0, 255), new Scalar(0, 0, 255), tmp);
+        Imgproc.threshold(tmp, tmp, 70, 255, Imgproc.THRESH_BINARY_INV);
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(tmp, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-        for (MatOfPoint op : contours) {
-            MatOfPoint2f res = new MatOfPoint2f();
-            MatOfPoint2f op2 = new MatOfPoint2f(op.toArray());
-            Double con = Imgproc.arcLength(op2, true);
-            Imgproc.approxPolyDP(op2, res, con * 0.01, true);
-            lados = res.total();
-        }
-        Utils.matToBitmap(tmp, canvasBitmap);
-        return lados;
-
-    }
-
-    public int getNumber() {
-        /*
-        int[] puntos = getNumberBitmap(canvasBitmap);
-        Bitmap b = resizeBitmap(1400,1400,Bitmap.createBitmap(canvasBitmap,puntos[0],puntos[1]
-                ,puntos[2],puntos[3]));
-        Mat tmp = new Mat(b.getWidth(), b.getHeight(), CvType.CV_8S);
-        Utils.bitmapToMat(b, tmp);
-        Utils.matToBitmap(tmp, canvasBitmap);
-        return 1;*/
-
-        int[] puntos = getNumberBitmap(canvasBitmap);
-
-        Bitmap canvasBitmapCopy = Bitmap.createBitmap(canvasBitmap,puntos[0],puntos[1]
-                ,puntos[2],puntos[3]);
-        Bitmap canvastmp = resizeBitmap(28, 28, canvasBitmapCopy);
-        int[] allpixels = new int[canvastmp.getHeight() * canvastmp.getWidth()];
-        canvastmp.getPixels(allpixels, 0,
-                canvastmp.getWidth(), 0, 0,
-                canvastmp.getWidth(), canvastmp.getHeight());
-        for (int i = 0; i < allpixels.length; i++) {
-            if (allpixels[i] != Color.parseColor("#004C00")) {
-                allpixels[i] = Color.WHITE;
+        if (contours.size() > 1) {
+            for (MatOfPoint c : contours) {
+                MatOfPoint2f res = new MatOfPoint2f();
+                MatOfPoint2f op2 = new MatOfPoint2f(c.toArray());
+                Double con = Imgproc.arcLength(op2, true);
+                Imgproc.approxPolyDP(op2, res, con * 0.02, true);
+                lados = res.total();
             }
         }
-        canvastmp.setPixels(allpixels, 0, canvastmp.getWidth(),
-                0, 0, canvastmp.getWidth(), canvastmp.getHeight());
-        Mat tmp = new Mat(canvastmp.getWidth(), canvastmp.getHeight(), CvType.CV_8S);
+        //Utils.matToBitmap(tmp, canvasBitmap);
+        return (int) lados;
+    }
+
+
+    public int getNumero(Bitmap canvastmp) {
+        int num = -1;
+        Mat tmp = new Mat(canvastmp.getWidth(), canvastmp.getHeight(), CvType.CV_8UC3);
         Utils.bitmapToMat(canvastmp, tmp);
-        Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.GaussianBlur(tmp, tmp, new Size(5, 5), 0);
-        Imgproc.threshold(tmp, tmp, 90, 255, Imgproc.THRESH_BINARY);
-        MatOfFloat matOfFloat = new MatOfFloat();
-        Size sz = new Size(28, 28);
-        HOGDescriptor hog = new HOGDescriptor
-                (sz, new Size(14, 14), new Size(7, 7), new Size(7, 7), 9);
-        hog.compute(tmp, matOfFloat);
-        float[] ar = matOfFloat.toArray();
-        NumberPrediction pr = new NumberPrediction();
-        int num = pr.getNumber(matOfFloat.toArray());
-        this.nuevoDibujo();
+        Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2BGR);
+        Core.inRange(tmp, new Scalar(0, 76, 0), new Scalar(0, 76, 0), tmp);
+        Imgproc.threshold(tmp, tmp, 70, 255, Imgproc.THRESH_BINARY_INV);
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(tmp, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+
+        MatOfPoint2f approxCurve = new MatOfPoint2f();
+        MatOfPoint2f contour2f = null;
+        Log.d("TAG", "Contornos : " + contours.size());
+        // VALIDAR QUE contours.size() > 1 , digito fuera del marco
+        Rect rect = null;
+        if (contours.size() > 1) {
+            // SELECCIONAR EL CONTORNO MAS AMPLIO
+            for (MatOfPoint c : contours) {
+                contour2f = new MatOfPoint2f(c.toArray());
+                double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
+                Imgproc.approxPolyDP(contour2f, approxCurve, approxDistance, true);
+                MatOfPoint points = new MatOfPoint(approxCurve.toArray());
+                rect = Imgproc.boundingRect(points);
+            }
+
+            int lado = 0;
+            if (rect.width > rect.height) {
+                lado = rect.width;
+            } else {
+                lado = rect.height;
+            }
+            int lado_a = lado;
+            while (lado_a % 28 != 0) {
+                lado_a++;
+
+            }
+            lado = lado_a;
+            Bitmap canvasBitmapRectangule = Bitmap.createBitmap(canvasBitmap, rect.x-20, rect.y-20, lado+40, lado+40);
+            Mat tmp_rect = new Mat(lado, lado, CvType.CV_8UC3);
+            Utils.bitmapToMat(canvasBitmapRectangule, tmp_rect);
+            Imgproc.resize(tmp_rect, tmp_rect, new Size(1400, 1400));
+            Utils.matToBitmap(tmp_rect, canvasBitmap);
+
+            /*
+            MatOfFloat matOfFloat = new MatOfFloat();
+            HOGDescriptor hog = new HOGDescriptor
+                    (new Size(28, 28), new Size(14, 14), new Size(7, 7), new Size(7, 7), 9);
+            Bitmap b = Bitmap.createBitmap(28, 28, Bitmap.Config.ARGB_8888);
+            Mat mat_final = new Mat(b.getWidth(), b.getHeight(), CvType.CV_8UC3);
+            Utils.bitmapToMat(b, mat_final);
+            Imgproc.cvtColor(mat_final, mat_final, Imgproc.COLOR_RGB2GRAY);
+            Imgproc.GaussianBlur(mat_final, mat_final, new Size(5, 5), 0);
+            Imgproc.threshold(mat_final, mat_final, 90, 255, Imgproc.THRESH_BINARY);
+            hog.compute(mat_final, matOfFloat);
+            float[] ar = matOfFloat.toArray();
+            NumberPrediction pr = new NumberPrediction();
+            num = pr.getNumber(matOfFloat.toArray());
+            */
+        }
         return num;
     }
 
-    public int[] getNumberBitmap(Bitmap canvastmp) {
-        Bitmap numberBitmap;
-        int dif = 0;
-        int con = 0;
-        int min_x = 0, min_y = 0, max_x = 0, max_y = 0;
-        for (int y = 0; y < canvastmp.getHeight(); y++) {
-            for (int x = 0; x < canvastmp.getWidth(); x++) {
-                if (canvastmp.getPixel(x, y) == Color.parseColor("#004C00")) {
-                    con++;
-                    if (con == 1) {
-                        min_y = y;
-                    }
-                    max_y = y;
-                }
-            }
-        }
-        con = 0;
-        for (int x = 0; x < canvastmp.getWidth(); x++) {
-            for (int y = 0; y < canvastmp.getHeight(); y++) {
-                if (canvastmp.getPixel(x, y) == Color.parseColor("#004C00")) {
-                    con++;
-                    if (con == 1) {
-                        min_x = x;
-                    }
-                    max_x = x;
-                }
-            }
-        }
-
-        Log.d("TAG", "POS MIN :  (" + min_x + "," + min_y + ")");
-        Log.d("TAG", "POS MAX :  (" + max_x + "," + max_y + ")");
-        Log.d("TAG", "ANCHO :  " + (max_x - min_x));
-        Log.d("TAG", "ALTO :  " + (max_y - min_y));
-        int[] r ={min_x,min_y,(max_x - min_x),(max_y - min_y)};
-        return  r;
-    }
-
-    public Bitmap resizeBitmap(int x, int y, Bitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        Matrix matrix = new Matrix();
-        float scaleWidht = ((float) x / width);
-        float scaleHeight = ((float) y / height);
-        matrix.postScale(scaleWidht, scaleHeight);
-        Bitmap bitmapNew = Bitmap.createBitmap(bitmap, 0, 0, width, height,
-                matrix, true);
-        return bitmapNew;
-    }
-/*
-Log.d("TAG", "ANCHO " + canvastmp.getWidth());
-Log.d("TAG", "ALTO " + canvastmp.getHeight());
-Log.d("TAG", "descriptores :  " + matOfFloat.toArray().length);
-*/
 }
